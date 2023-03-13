@@ -19,7 +19,7 @@
       <li><p><strong>Pick up products</strong>: Records the purchase of products for the specified delivery, and updates the delivery's budget and status accordingly. Returns the ID, budget, notes, status, purchase price, and remaining quantity of the delivery after the products have been picked up.</p></li>
       <li><p><strong>Deliver products</strong>: Records the delivery of products for the specified delivery, and updates the delivery's budget, quantity, and status accordingly. Returns the ID, budget, notes, status, purchase price, sell price, and remaining quantity of the delivery after the products have been delivered.</p></li>
       <li><p><strong>Get delivery state</strong>: Retrieves the current state of the specified delivery, including its ID, budget, notes, status, purchase price, sell price, and remaining quantity.</p></li>
-      <li><p><strong>Increase budget</strong>: Increases the budget of the specified delivery by the specified amount, and updates the delivery's status accordingly. Returns the ID, budget, notes, and status of the delivery after the budget has been increased.</p></li>
+      <li><p><strong>Increase budget</strong>: Before pickup (if something extra needs to be delivered) increases the specified delivery budget by the specified amount and updates the delivery status accordingly. Returns identifier, budget, notes and delivery status after budget increase..</p></li>
      </ol>
     </div>
    </div>

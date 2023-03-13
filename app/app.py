@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from consumers import CONSUMERS
 from redis_om import get_redis_connection, HashModel
 
+
 load_dotenv()
 
 app = FastAPI()

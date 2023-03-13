@@ -1,4 +1,29 @@
-  <div>
+<h2>General description of the app:</h2>
+<p>This project is a delivery management system that was created as a part of an Event-Driven Architecture course using React and FastAPI. The app uses Redis as a database to store information about deliveries and events that affect those deliveries. The app consists of several endpoints that allow users to create new deliveries, update the state of existing deliveries by dispatching events, and retrieve the current state of a delivery.</p>
+<p>The app uses a set of consumer functions to compute the updated state of a delivery based on the events that have been dispatched for that delivery. These consumer functions are responsible for updating the state of the delivery in Redis and returning the updated state to the client.</p>
+<p>The project has been modified to include some minor changes in exception handling, docstrings, and comments to better understand the Redis database operations being performed.</p>
+<p>The app is still a work in progress and subject to further improvements.</p>
+
+<p>Descriptions for each function:</p>
+<p>In <code>app.py</code>:</p>
+<ul>
+ <li><p><code>get_state(pk: str)</code>: This function retrieves the current state of a delivery with the specified primary key. If the state is not already cached in Redis, it will be built by calling <code>build_state()</code> and then cached for future requests.</p></li>
+ <li><p><code>build_state(pk: str)</code>: This function builds the current state of a delivery by aggregating all of the events that have been dispatched for that delivery and applying each event to the initial state. The resulting state is returned as a dictionary.</p></li>
+ <li><p><code>create(request: Request)</code>: This function creates a new delivery with the specified budget and notes by parsing the JSON payload in the HTTP request. The new delivery is saved to the Redis database along with an event that describes the creation of the delivery. The initial state of the delivery is returned as a dictionary.</p></li>
+ <li><p><code>dispatch(request: Request)</code>: This function dispatches an event to update the state of a delivery. The event is parsed from the JSON payload in the HTTP request, and the current state of the delivery is retrieved from Redis using <code>get_state()</code>. The event is saved to the Redis database, and the new state of the delivery is computed by applying the event to the current state using the appropriate consumer function. The new state is saved to Redis, and then returned as a dictionary.</p></li>
+</ul>
+<p>In <code>consumers.py</code>:</p>
+<ul>
+ <li><p><code>create_delivery(state, event)</code>: This function is a consumer function that is called when a new delivery is created. It creates a new delivery and initializes its state with the specified budget and notes. The initial state is returned as a dictionary.</p></li>
+ <li><p><code>start_delivery(state, event)</code>: This function is a consumer function that is called when a delivery is started. It updates the state of the delivery to indicate that it is now "active". The updated state is returned as a dictionary.</p></li>
+ <li><p><code>pickup_products(state, event)</code>: This function is a consumer function that is called when products are picked up as part of a delivery. It updates the state of the delivery to indicate that the products have been picked up, and reduces the budget by the appropriate amount. The updated state is returned as a dictionary.</p></li>
+ <li><p><code>deliver_products(state, event)</code>: This function is a consumer function that is called when products are delivered as part of a delivery. It updates the state of the delivery to indicate that the products have been delivered, and increases the budget by the appropriate amount. The updated state is returned as a dictionary.</p></li>
+ <li><p><code>increase_budget(state, event)</code>: This function is a consumer function that is called when the budget for a delivery needs to be increased. It increases the budget by the specified amount, and returns the updated state as a dictionary.</p></li>
+</ul>
+<p>These functions are called by <code>build_state()</code> and <code>dispatch()</code> in <code>app.py</code> to compute the updated state of a delivery based on the events that have been dispatched for that delivery. Each consumer function takes the current state of the delivery and an event that describes the update, and returns the updated state of the delivery as a dictionary. The consumer functions can also raise <code>HTTPException</code> if there is an error with the update, such as trying to pick up or deliver products when the delivery is already completed.</p>  
+
+
+<div>
    <div></div>
   </div>
     <div>
@@ -12,14 +37,13 @@
   <div>
    <div>
     <div>
-     <p>Sure, here are the descriptions for each of the above documentation points:</p>
      <ol>
       <li><p><strong>Create new delivery</strong>: Creates a new delivery with the specified budget and notes. Returns the ID, budget, notes, and status of the newly created delivery.</p></li>
       <li><p><strong>Start delivery</strong>: Starts the specified delivery. Returns the ID, budget, notes, and status of the delivery after it has been started.</p></li>
       <li><p><strong>Pick up products</strong>: Records the purchase of products for the specified delivery, and updates the delivery's budget and status accordingly. Returns the ID, budget, notes, status, purchase price, and remaining quantity of the delivery after the products have been picked up.</p></li>
       <li><p><strong>Deliver products</strong>: Records the delivery of products for the specified delivery, and updates the delivery's budget, quantity, and status accordingly. Returns the ID, budget, notes, status, purchase price, sell price, and remaining quantity of the delivery after the products have been delivered.</p></li>
       <li><p><strong>Get delivery state</strong>: Retrieves the current state of the specified delivery, including its ID, budget, notes, status, purchase price, sell price, and remaining quantity.</p></li>
-      <li><p><strong>Increase budget</strong>: Increases the budget of the specified delivery by the specified amount, and updates the delivery's status accordingly. Returns the ID, budget, notes, and status of the delivery after the budget has been increased.</p></li>
+      <li><p><strong>Increase budget</strong>: Before pickup (if something extra needs to be delivered) increases the specified delivery budget by the specified amount and updates the delivery status accordingly. Returns identifier, budget, notes and delivery status after budget increase..</p></li>
      </ol>
     </div>
    </div>
@@ -29,6 +53,7 @@
   </div>
  </div>
 </div>
+<p>Link to a raw Postman documentaion - <a>https://documenter.getpostman.com/view/25720495/2s93Jushe4</a></p>
       <h3>Create new delivery</h3>
       <p><strong>POST</strong> <code>/deliveries/create</code></p>
       <p>Create a new delivery.</p>

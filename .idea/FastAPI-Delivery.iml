@@ -3,15 +3,8 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
-      <excludeFolder url="file://$MODULE_DIR$/.idea/httpRequests" />
-      <excludeFolder url="file://$MODULE_DIR$/.pytest_cache/v" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="jquery-3.6.0" level="application" />
-    <orderEntry type="library" name="jquery-3.3.1.slim" level="application" />
-    <orderEntry type="library" name="popper.js" level="application" />
-    <orderEntry type="library" name="jquery-3.5.1.slim" level="application" />
-    <orderEntry type="library" name="jquery-3.2.1.slim" level="application" />
   </component>
 </module>

@@ -2,25 +2,15 @@ import json
 import os
 
 from dotenv import load_dotenv
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-
-from consumers import CONSUMERS
 from redis_om import get_redis_connection, HashModel
 
+from app.consumers import CONSUMERS
 
 load_dotenv()
 
 app = FastAPI()
-
-app.mount("/static", StaticFiles(directory="/Users/maksimkisliak/PycharmProjects/FastAPI-Delivery/static"),
-          name="static")
-
-templates = Jinja2Templates(directory="/Users/maksimkisliak/PycharmProjects/FastAPI-Delivery/templates")
 
 app.add_middleware(
     CORSMiddleware,

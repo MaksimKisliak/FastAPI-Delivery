@@ -1,165 +1,658 @@
-<ol>
- <li>A user creates a new delivery by sending a POST request to the <code>/deliveries/create</code> endpoint, with a payload containing the delivery's budget and notes.</li>
-<pre><span></span><code>             ┌────────────┐
-             │            │
-             │   <span>User</span>     │
-             │            │
-             └────────────┘
-                    │
-                    │
-                    ▼
-       ┌───────────────────────┐
-       │  <span>/</span>deliveries<span>/</span><span>create</span>   │
-       │       endpoint        │
-       └───────────────────────┘
-                    │
-                    │
-                    ▼
-         ┌─────────────────┐
-         │  Delivery Object│
-         └─────────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │    Redis      │
-          └───────────────┘
+  <div>
+   <div></div>
+  </div>
+    <div>
+     <div>
+      <h2>API Documentation</h2>
+<div>
+ <div>
+  <div></div>
+ </div>
+ <div>
+  <div>
+   <div>
+    <div>
+     <p>Sure, here are the descriptions for each of the above documentation points:</p>
+     <ol>
+      <li><p><strong>Create new delivery</strong>: Creates a new delivery with the specified budget and notes. Returns the ID, budget, notes, and status of the newly created delivery.</p></li>
+      <li><p><strong>Start delivery</strong>: Starts the specified delivery. Returns the ID, budget, notes, and status of the delivery after it has been started.</p></li>
+      <li><p><strong>Pick up products</strong>: Records the purchase of products for the specified delivery, and updates the delivery's budget and status accordingly. Returns the ID, budget, notes, status, purchase price, and remaining quantity of the delivery after the products have been picked up.</p></li>
+      <li><p><strong>Deliver products</strong>: Records the delivery of products for the specified delivery, and updates the delivery's budget, quantity, and status accordingly. Returns the ID, budget, notes, status, purchase price, sell price, and remaining quantity of the delivery after the products have been delivered.</p></li>
+      <li><p><strong>Get delivery state</strong>: Retrieves the current state of the specified delivery, including its ID, budget, notes, status, purchase price, sell price, and remaining quantity.</p></li>
+      <li><p><strong>Increase budget</strong>: Increases the budget of the specified delivery by the specified amount, and updates the delivery's status accordingly. Returns the ID, budget, notes, and status of the delivery after the budget has been increased.</p></li>
+     </ol>
+    </div>
+   </div>
+  </div>
+  <div>
+   <div></div>
+  </div>
+ </div>
+</div>
+      <h3>Create new delivery</h3>
+      <p><strong>POST</strong> <code>/deliveries/create</code></p>
+      <p>Create a new delivery.</p>
+      <h4>Request Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>type</td>
+         <td>string</td>
+         <td>The type of event. Must be <code>CREATE_DELIVERY</code>.</td>
+        </tr>
+        <tr>
+         <td>data</td>
+         <td>object</td>
+         <td>The data of the event.</td>
+        </tr>
+        <tr>
+         <td>data.budget</td>
+         <td>integer</td>
+         <td>The budget of the delivery.</td>
+        </tr>
+        <tr>
+         <td>data.notes</td>
+         <td>string</td>
+         <td>The notes of the delivery.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Response Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>id</td>
+         <td>string</td>
+         <td>The ID of the delivery.</td>
+        </tr>
+        <tr>
+         <td>budget</td>
+         <td>integer</td>
+         <td>The budget of the delivery.</td>
+        </tr>
+        <tr>
+         <td>notes</td>
+         <td>string</td>
+         <td>The notes of the delivery.</td>
+        </tr>
+        <tr>
+         <td>status</td>
+         <td>string</td>
+         <td>The status of the delivery. Must be <code>ready</code>.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Example Request</h4>
+      <pre>
+<code>POST /deliveries/create HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
 
-</code></pre>
- <li>The app creates a new <code>Delivery</code> object with the specified budget and notes and saves it to Redis as a new hash with a unique primary key. The app also dispatches a <code>CREATE_DELIVERY</code> event for the new delivery and stores it in Redis as a new hash with a unique primary key. The <code>delivery_id</code> field of the event is set to the primary key of the new <code>Delivery</code> object.</li>
-<pre><span></span><code>             ┌────────────┐
-             │            │
-             │    App     │
-             │            │
-             └────────────┘
-                    │
-                    │
-                    ▼
-       ┌───────────────────────┐
-       │Create Delivery Object │
-       └───────────────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │    Redis      │
-          └───────────────┘
-                    │
-                    │
-                    ▼
-        ┌──────────────────┐
-        │Create</span> Delivery Event
-        └──────────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │    Redis      │
-          └───────────────┘
+{
+    "type": "CREATE_DELIVERY",
+    "data": {
+        "budget": 600,
+        "notes": "BigMac, Coca cola and fries"
+    }
+}
+</code>
+</pre>
+<h4>Example Response</h4>
+<pre>
+<code>HTTP/1.1 200 OK
+Content-Type: application/json
 
-</code></pre>
- <li>The <code>create_delivery</code> function is called to update the state of the new delivery based on the <code>CREATE_DELIVERY</code> event. The function creates a new state object with the delivery's ID, budget, notes, and status set to "ready".</li>
-<pre><code>             ┌────────────┐
-             │            │
-             │    App     │
-             │            │
-             └────────────┘
-                    │
-                    │
-                    ▼
-       ┌───────────────────────┐
-       │create_delivery()      │
-       └───────────────────────┘
-                    │
-                    │
-                    ▼
-        ┌──────────────────┐
-        │  New State Object│
-        └──────────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │    Redis      │
-          └───────────────┘
+{
+    "id": "01GVDFM78ZXGT1ENB78F6BMDQW",
+    "budget": 600,
+    "notes": "BigMac, Coca cola and fries",
+    "status": "ready"
+}
+</code>
+</pre>
+<h3>Start delivery</h3>
+<p><strong>POST</strong> <code>/event</code></p>
+<p>Start a delivery.</p>
+<h4>Request Body</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type</td>
+<td>string</td>
+<td>The type of event. Must be <code>START_DELIVERY</code>.</td>
+</tr>
+<tr>
+<td>delivery_id</td>
+<td>string</td>
+<td>The ID of the delivery to start.</td>
+</tr>
+<tr>
+<td>data</td>
+<td>object</td>
+<td>The data of the event.</td>
+</tr>
+</tbody>
+</table>
+<h4>Response Body</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>The ID of the delivery.</td>
+</tr>
+<tr>
+<td>budget</td>
+<td>integer</td>
+<td>The budget of the delivery.</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>string</td>
+<td>The notes of the delivery.</td>
+</tr>
+<tr>
+<td>status</td>
+<td>string</td>
+<td>The status of the delivery. Must be <code>active</code>.</td>
+</tr>
+</tbody>
+</table>
+<h4>Example Request</h4>
+<pre>
+<code>POST /event HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
 
-</code></pre>
- <li>The user can retrieve the current status of the delivery by sending a GET request to the <code>/deliveries/{pk}/status</code> endpoint, where <code>{pk}</code> is the primary key of the delivery they want to retrieve. If the delivery's status has been updated by events, the response will contain the updated status. If not, the app will generate the current status by processing all events associated with the delivery and return it to the user:</li>
-<pre><span></span><code>             ┌────────────┐
-             │            │
-             │   User     │
-             │            │
-             └────────────┘
-                    │
-                    │
-                    ▼
-       ┌───────────────────────┐
-       │   /deliveries/{pk}/status 
-       │         endpoint      │
-       └───────────────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │    Redis      │
-          └───────────────┘
-                    │
-                    │
-                    ▼
-        ┌──────────────────┐
-        │Current Delivery Status
-        └──────────────────┘
+{
+    "type": "START_DELIVERY",
+    "delivery_id": "01GVDFM78ZXGT1ENB78F6BMDQW",
+    "data": {}
+}
+</code>
+</pre>
+<h4>Example Response</h4>
+<pre>
+<code>HTTP/1.1 200 OK
+Content-Type: application/json
 
-</code></pre>
- <li>If an event is received for a specific delivery, the app retrieves the current state of the delivery from Redis using the <code>delivery_id</code> field of the event. It then dispatches the event to the corresponding handling function, which updates the state of the delivery based on the event.</li>
-<pre><span></span><code>             ┌────────────┐
-             │            │
-             │    App     │
-             │            │
-             └────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │   Event       │
-          └───────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │    Redis      │
-          └───────────────┘
-                    │
-                    │
-                    ▼
-       ┌───────────────────────┐
-       │  Handling Function    │
-       └───────────────────────┘
-                    │
-                    │
-                    ▼
-        ┌──────────────────┐
-        │New State Object  │
-        └──────────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │    Redis      │
-          └───────────────┘
+{
+    "id": "01GVDFM78ZXGT1ENB78F6BMDQW",
+    "budget": 600,
+    "notes": "BigMac, Coca cola and fries",
+    "status": "active"
+}
+</code>
+</pre>
+  <div>
+   <div>
+    <div>
+     <div>
+      <h3>Pick up products</h3>
+      <p><strong>POST</strong> <code>/event</code></p>
+      <p>Pick up products for a delivery.</p>
+      <h4>Request Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>type</td>
+         <td>string</td>
+         <td>The type of event. Must be <code>PICKUP_PRODUCTS</code>.</td>
+        </tr>
+        <tr>
+         <td>delivery_id</td>
+         <td>string</td>
+         <td>The ID of the delivery to pick up products for.</td>
+        </tr>
+        <tr>
+         <td>data</td>
+         <td>object</td>
+         <td>The data of the event.</td>
+        </tr>
+        <tr>
+         <td>data.purchase_price</td>
+         <td>integer</td>
+         <td>The purchase price of the products.</td>
+        </tr>
+        <tr>
+         <td>data.quantity</td>
+         <td>integer</td>
+         <td>The quantity of the products.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Response Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>id</td>
+         <td>string</td>
+         <td>The ID of the delivery.</td>
+        </tr>
+        <tr>
+         <td>budget</td>
+         <td>integer</td>
+         <td>The budget of the delivery.</td>
+        </tr>
+        <tr>
+         <td>notes</td>
+         <td>string</td>
+         <td>The notes of the delivery.</td>
+        </tr>
+        <tr>
+         <td>status</td>
+         <td>string</td>
+         <td>The status of the delivery. Must be <code>collected</code>.</td>
+        </tr>
+        <tr>
+         <td>purchase_price</td>
+         <td>integer</td>
+         <td>The purchase price of the products.</td>
+        </tr>
+        <tr>
+         <td>quantity</td>
+         <td>integer</td>
+         <td>The quantity of the products.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Example Request</h4>
+      <pre>
+<code>POST /event HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
 
-</code></pre>
- <li>After the delivery's state has been updated by an event, the app saves the new state to Redis under the hash with the primary key matching the delivery's ID.</li>
-<pre><span></span><code><span>             ┌────────────┐
-             │            │
-             │    App     │
-             │            │
-             └────────────┘
-                    │
-                    │
-                    ▼
-          ┌───────────────┐
-          │    Redis      │
-          └───────────────┘
-</span>
-</code></pre>
+{
+    "type": "PICKUP_PRODUCTS",
+    "delivery_id": "01GVDFM78ZXGT1ENB78F6BMDQW",
+    "data": {
+        "purchase_price": 200,
+        "quantity": 3
+    }
+}
+</code>
+</pre>
+<h4>Example Response</h4>
+<pre>
+<code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": "01GVDFM78ZXGT1ENB78F6BMDQW",
+    "budget": 0,
+    "notes": "BigMac, Coca cola and fries",
+    "status": "collected",
+    "purchase_price": 200,
+    "quantity": 3
+}
+</code>
+</pre>
+    <div>
+     <div>
+      <h3>Deliver products</h3>
+      <p><strong>POST</strong> <code>/event</code></p>
+      <p>Deliver products for a delivery.</p>
+      <h4>Request Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>type</td>
+         <td>string</td>
+         <td>The type of event. Must be <code>DELIVER_PRODUCTS</code>.</td>
+        </tr>
+        <tr>
+         <td>delivery_id</td>
+         <td>string</td>
+         <td>The ID of the delivery to deliver products for.</td>
+        </tr>
+        <tr>
+         <td>data</td>
+         <td>object</td>
+         <td>The data of the event.</td>
+        </tr>
+        <tr>
+         <td>data.sell_price</td>
+         <td>integer</td>
+         <td>The sell price of the products.</td>
+        </tr>
+        <tr>
+         <td>data.quantity</td>
+         <td>integer</td>
+         <td>The quantity of the products.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Response Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>id</td>
+         <td>string</td>
+         <td>The ID of the delivery.</td>
+        </tr>
+        <tr>
+         <td>budget</td>
+         <td>integer</td>
+         <td>The budget of the delivery.</td>
+        </tr>
+        <tr>
+         <td>notes</td>
+         <td>string</td>
+         <td>The notes of the delivery.</td>
+        </tr>
+        <tr>
+         <td>status</td>
+         <td>string</td>
+         <td>The status of the delivery. Must be <code>completed</code>.</td>
+        </tr>
+        <tr>
+         <td>purchase_price</td>
+         <td>integer</td>
+         <td>The purchase price of the products.</td>
+        </tr>
+        <tr>
+         <td>quantity</td>
+         <td>integer</td>
+         <td>The remaining quantity of the products.</td>
+        </tr>
+        <tr>
+         <td>sell_price</td>
+         <td>integer</td>
+         <td>The sell price of the products.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Example Request</h4>
+      <pre>
+<code>POST /event HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
+
+{
+    "type": "DELIVER_PRODUCTS",
+    "delivery_id": "01GVDFM78ZXGT1ENB78F6BMDQW",
+    "data": {
+        "sell_price": 250,
+        "quantity": 3
+    }
+}
+</code>
+</pre>
+<h4>Example Response</h4>
+<pre>
+<code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": "01GVDFM78ZXGT1ENB78F6BMDQW",
+    "budget": 750,
+    "notes": "BigMac, Coca cola and fries",
+    "status": "completed",
+    "purchase_price": 200,
+    "quantity": 0,
+    "sell_price": 250
+}
+</code>
+</div>
+</div></pre>
+
+<div>
+ <div>
+  <div>
+   <div></div>
+  </div>
+  <div>
+   <div>
+    <div>
+     <div>
+      <h3>Get delivery state</h3>
+      <p><strong>GET</strong> <code>/deliveries/{pk}/status</code></p>
+      <p>Get the current state of a delivery.</p>
+      <h4>Path Parameters</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>pk</td>
+         <td>string</td>
+         <td>The ID of the delivery.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Response Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>id</td>
+         <td>string</td>
+         <td>The ID of the delivery.</td>
+        </tr>
+        <tr>
+         <td>budget</td>
+         <td>integer</td>
+         <td>The budget of the delivery.</td>
+        </tr>
+        <tr>
+         <td>notes</td>
+         <td>string</td>
+         <td>The notes of the delivery.</td>
+        </tr>
+        <tr>
+         <td>status</td>
+         <td>string</td>
+         <td>The status of the delivery.</td>
+        </tr>
+        <tr>
+         <td>purchase_price</td>
+         <td>integer</td>
+         <td>The purchase price of the products.</td>
+        </tr>
+        <tr>
+         <td>quantity</td>
+         <td>integer</td>
+         <td>The remaining quantity of the products.</td>
+        </tr>
+        <tr>
+         <td>sell_price</td>
+         <td>integer</td>
+         <td>The sell price of the products.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Example Request</h4>
+      <pre>
+<code>GET /deliveries/01GVDFM78ZXGT1ENB78F6BMDQW/status HTTP/1.1
+Host: localhost:8000
+</code>
+</pre>
+      <h4>Example Response</h4>
+      <pre>
+<code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": "01GVDFM78ZXGT1ENB78F6BMDQW",
+    "budget": 750,
+    "notes": "BigMac, Coca cola and fries",
+    "status": "completed",
+    "purchase_price": 200,
+    "quantity": 0,
+    "sell_price": 250
+}
+</code>
+        </div>
+       </div></pre>
+
+<div>
+ <div>
+  <div>
+   <div></div>
+  </div>
+  <div>
+   <div>
+    <div>
+     <div>
+      <h3>Increase budget</h3>
+      <p><strong>POST</strong> <code>/event</code></p>
+      <p>Increase the budget of a delivery.</p>
+      <h4>Request Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>type</td>
+         <td>string</td>
+         <td>The type of event. Must be <code>INCREASE_BUDGET</code>.</td>
+        </tr>
+        <tr>
+         <td>delivery_id</td>
+         <td>string</td>
+         <td>The ID of the delivery to increase the budget for.</td>
+        </tr>
+        <tr>
+         <td>data</td>
+         <td>object</td>
+         <td>The data of the event.</td>
+        </tr>
+        <tr>
+         <td>data.budget</td>
+         <td>integer</td>
+         <td>The amount to increase the budget by.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Response Body</h4>
+      <table>
+       <thead>
+        <tr>
+         <th>Name</th>
+         <th>Type</th>
+         <th>Description</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td>id</td>
+         <td>string</td>
+         <td>The ID of the delivery.</td>
+        </tr>
+        <tr>
+         <td>budget</td>
+         <td>integer</td>
+         <td>The budget of the delivery, after the increase.</td>
+        </tr>
+        <tr>
+         <td>notes</td>
+         <td>string</td>
+         <td>The notes of the delivery.</td>
+        </tr>
+        <tr>
+         <td>status</td>
+         <td>string</td>
+         <td>The status of the delivery. Must be <code>active</code>.</td>
+        </tr>
+       </tbody>
+      </table>
+      <h4>Example Request</h4>
+      <pre>
+<code>POST /event HTTP/1.1
+Host: localhost:8000
+Content-Type: application/json
+
+{
+    "type": "INCREASE_BUDGET",
+    "delivery_id": "01GVDBB3PG55CBZRJCTPWNN2PV",
+    "data": {
+        "budget": 500
+    }
+}
+</code>
+</pre>
+  <h4>Example Response</h4>
+<pre>
+<code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": "01GVDBB3PG55CBZRJCTPWNN2PV",
+    "budget": 1100,
+    "notes": "BigMac, Coca cola and fries",
+    "status": "active"
+}
+</code>
+</pre>

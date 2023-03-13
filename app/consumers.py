@@ -60,6 +60,8 @@ def deliver_products(state, event):
 
 
 def increase_budget(state, event):
+    if state["status"] != "active":
+        raise HTTPException(status_code=400, detail="delivery has either not started or has already been completed")
     data = json.loads(event.data)
     state['budget'] += int(data['budget'])
     return state

@@ -12,7 +12,6 @@
   <div>
    <div>
     <div>
-     <p>Sure, here are the descriptions for each of the above documentation points:</p>
      <ol>
       <li><p><strong>Create new delivery</strong>: Creates a new delivery with the specified budget and notes. Returns the ID, budget, notes, and status of the newly created delivery.</p></li>
       <li><p><strong>Start delivery</strong>: Starts the specified delivery. Returns the ID, budget, notes, and status of the delivery after it has been started.</p></li>

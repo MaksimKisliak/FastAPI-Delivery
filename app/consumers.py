@@ -1,5 +1,4 @@
 import json
-
 from fastapi import HTTPException
 
 
@@ -26,6 +25,9 @@ def pickup_products(state, event):
     data = json.loads(event.data)
     new_budget = state["budget"] - int(data['purchase_price']) * int(data['quantity'])
 
+    if state["status"] == 'completed':
+        raise HTTPException(status_code=400, detail="Delivery already competed")
+
     if new_budget < 0:
         raise HTTPException(status_code=400, detail="Not enough budget")
 
@@ -39,11 +41,15 @@ def pickup_products(state, event):
 
 def deliver_products(state, event):
     data = json.loads(event.data)
-    new_budget = state["budget"] + int(data['sell_price']) * int(data['quantity'])
     new_quantity = state["quantity"] - int(data['quantity'])
+
+    if state["status"] == 'completed':
+        raise HTTPException(status_code=400, detail="Not enough quantity")
 
     if new_quantity < 0:
         raise HTTPException(status_code=400, detail="Not enough quantity")
+
+    new_budget = state["budget"] + int(data['sell_price']) * int(data['quantity'])
 
     return state | {
         "budget": new_budget,

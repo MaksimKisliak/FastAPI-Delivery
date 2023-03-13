@@ -1,25 +1,38 @@
 import json
+import os
+
+from dotenv import load_dotenv
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
+from consumers import CONSUMERS
 from redis_om import get_redis_connection, HashModel
 
-import consumers
+load_dotenv()
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="/Users/maksimkisliak/PycharmProjects/FastAPI-Delivery/static"),
+          name="static")
+
+templates = Jinja2Templates(directory="/Users/maksimkisliak/PycharmProjects/FastAPI-Delivery/templates")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['http://localhost :3000'],
+    allow_origins=[os.environ.get('ALLOW_ORIGINS')],
     allow_methods=['*'],
     allow_headers=['*'])
 
 redis = get_redis_connection(
-    host="redis-12130.c293.eu-central-1-1.ec2.cloud.redislabs.com",
-    port=12130,
-    password="lL1IfvIXqPGhDFYutvCwkAQK7CPSqcb9",
-    decode_responses=True
+    host=os.environ.get('REDIS_HOST'),
+    port=os.environ.get('REDIS_PORT'),
+    password=os.environ.get('REDIS_PASSWORD'),
 )
+
 
 class Delivery(HashModel):
     budget: int = 0
@@ -57,7 +70,7 @@ def build_state(pk: str):
     state = {}
 
     for event in events:
-        state = consumers.CONSUMERS[event.type](state, event)
+        state = CONSUMERS[event.type](state, event)
 
     return state
 
@@ -67,7 +80,7 @@ async def create(request: Request):
     body = await request.json()
     delivery = Delivery(budget=body['data']['budget'], notes=body['data']['notes']).save()
     event = Event(delivery_id=delivery.pk, type=body['type'], data=json.dumps(body['data'])).save()
-    state = consumers.CONSUMERS[event.type]({}, event)
+    state = CONSUMERS[event.type]({}, event)
     redis.set(f'delivery:{delivery.pk}', json.dumps(state))
     return state
 
@@ -78,6 +91,6 @@ async def dispatch(request: Request):
     delivery_id = body['delivery_id']
     state = await get_state(delivery_id)
     event = Event(delivery_id=delivery_id, type=body['type'], data=json.dumps(body['data'])).save()
-    new_state = consumers.CONSUMERS[event.type](state, event)
+    new_state = CONSUMERS[event.type](state, event)
     redis.set(f'delivery:{delivery_id}', json.dumps(new_state))
     return new_state

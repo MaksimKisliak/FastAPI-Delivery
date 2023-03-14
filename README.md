@@ -1,7 +1,7 @@
 <h2>General description of the app:</h2>
 <p>This project is a delivery management system that was created as a part of an Event-Driven Architecture course using React and FastAPI. The app uses Redis as a database to store information about deliveries and events that affect those deliveries. The app consists of several endpoints that allow users to create new deliveries, update the state of existing deliveries by dispatching events, and retrieve the current state of a delivery.</p>
 <p>The app uses a set of consumer functions to compute the updated state of a delivery based on the events that have been dispatched for that delivery. These consumer functions are responsible for updating the state of the delivery in Redis and returning the updated state to the client.</p>
-<p>The project has been modified to include some minor changes in exception handling, docstrings, and comments to better understand the Redis database operations being performed.</p>
+<p>The project has been modified to include some minor changes in exception handling, docstrings, and comments to better understand the Redis database operations being performed. There were added entrance tests within the PyTest framework.</p>
 <p>The app is still a work in progress and subject to further improvements.</p>
 
 <p>Descriptions for each function:</p>

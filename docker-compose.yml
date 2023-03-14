@@ -1,20 +1,17 @@
-version: "3.11.2"
+version: '3'
 
 services:
   app:
     build: .
     ports:
-      - 80:80
+      - "8000:8000"
     environment:
-      - REDIS_HOST=os.environ.get('REDIS_HOST')
-      - REDIS_PORT=os.environ.get('REDIS_PORT')
-      - REDIS_PASSWORD=os.environ.get('REDIS_PASSWORD')
       - ALLOW_ORIGINS=http://localhost:3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=secret
     depends_on:
       - redis
-
   redis:
-    image: redis
-    command: redis-server --requirepass your_redis_password
-    ports:
-      - 6379:6379
+    image: redis:latest
+    command: redis-server --requirepass secret

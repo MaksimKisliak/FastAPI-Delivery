@@ -3,6 +3,35 @@
 <p>The app uses a set of consumer functions to compute the updated state of a delivery based on the events that have been dispatched for that delivery. These consumer functions are responsible for updating the state of the delivery in Redis and returning the updated state to the client.</p>
 <p>The project has been modified to include some minor changes in exception handling, docstrings, and comments to better understand the Redis database operations being performed. There were added entrance tests within the PyTest framework.</p>
 <p>The app is still a work in progress and subject to further improvements.</p>
+<p>Here are some possible scopes for improvements in various aspects:</p>
+<ol>
+ <li><p><strong>Security:</strong></p>
+  <ul>
+   <li>Use HTTPS for secure communication.</li>
+   <li>Implement proper authentication and authorization mechanisms for API access.</li>
+   <li>Implement input validation and sanitize inputs to prevent injection attacks.</li>
+   <li>Use secure password storage mechanisms, such as salted hashing, to protect user passwords.</li>
+  </ul></li>
+ <li><p><strong>Performance:</strong></p>
+  <ul>
+   <li>Optimize database queries by using indexes, caching, or other techniques.</li>
+   <li>Use load balancing and horizontal scaling to handle high traffic.</li>
+   <li>Implement efficient algorithms and data structures to handle large datasets.</li>
+   <li>Use asynchronous programming to improve response times and handle concurrent requests.</li>
+  </ul></li>
+ <li><p><strong>Reliability:</strong></p>
+  <ul>
+   <li>Implement error handling and logging mechanisms to identify and fix issues.</li>
+   <li>Use monitoring and alerting tools to detect and respond to failures.</li>
+   <li>Implement backup and recovery mechanisms to ensure data availability in case of failures.</li>
+  </ul></li>
+ <li><p><strong>Scalability:</strong></p>
+  <ul>
+   <li>Design the app to be modular and loosely coupled to allow for easy scaling and maintenance.</li>
+   <li>Use containerization technologies like Docker to enable quick and easy deployment and scaling.</li>
+   <li>Use cloud-based hosting services to take advantage of on-demand scaling and high availability features.</li>
+  </ul>
+</ol>
 
 <p>Descriptions for each function:</p>
 <p>In <code>app.py</code>:</p>
